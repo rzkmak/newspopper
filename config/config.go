@@ -1,3 +1,3 @@
 package config
 
-type Config struct {}
+type Config struct{}
