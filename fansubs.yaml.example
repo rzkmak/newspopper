@@ -1,0 +1,7 @@
+- name: "Fansub Name"
+  url: "fansub url"
+  selector:
+    main: "main css selector"
+    title: "title css selector"
+    link: "link css selector"
+  optional_http_code: 500 // additional acceptable http code
