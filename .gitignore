@@ -1,0 +1,15 @@
+.idea
+.vscode
+vendor
+*.test
+*.out
+*.so
+*.dll
+*.dylib
+.DS_Store
+build
+conveyor
+.env
+main_res.go
+proto
+anipokev2
