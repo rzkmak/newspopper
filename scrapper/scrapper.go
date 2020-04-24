@@ -7,6 +7,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"net/http"
 	"regexp"
+	"strings"
 )
 
 type Scrapper struct {
@@ -68,7 +69,9 @@ func (s *Scrapper) update(fs loader.Fansubs) ([]model.Anime, error) {
 		re := regexp.MustCompile("href=\"(.*?)\"")
 		link := re.FindStringSubmatch(plain)
 		if len(link) > 0 {
-			update.Link = link[0]
+			l := strings.ReplaceAll(link[0], "href=", "")
+			l = strings.ReplaceAll(l, "\"", "")
+			update.Link = l
 		}
 		updates = append(updates, *update)
 	})
