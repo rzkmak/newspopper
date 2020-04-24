@@ -2,6 +2,7 @@ package cli
 
 import (
 	"anipokev2/config"
+	"anipokev2/job"
 	"anipokev2/loader"
 	"anipokev2/scrapper"
 	log "github.com/sirupsen/logrus"
@@ -32,10 +33,9 @@ func (c *Cli) Run() {
 		log.Fatalln("no fansubs detected, please fill in the fansubs.yaml")
 	}
 
+	cfg := config.NewConfig()
+
 	s := scrapper.NewScrapper(fansubs)
-	result, err := s.Scrap()
-	if err != nil {
-		log.Errorln(err)
-	}
-	log.Infoln(result)
+	scheduled := job.NewJob(s, cfg)
+	scheduled.Execute()
 }
