@@ -1,4 +1,4 @@
-.PHONY: dep run lint build
+.PHONY: dep run lint build simulate
 
 run:
 	go run main.go
@@ -12,3 +12,6 @@ build:
 
 lint:
 	go fmt ./...
+
+simulate:
+	go run main.go simulate

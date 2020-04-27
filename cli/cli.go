@@ -6,6 +6,7 @@ import (
 	"anipokev2/job"
 	"anipokev2/loader"
 	"anipokev2/scrapper"
+	"fmt"
 	tb "github.com/demget/telebot"
 	"github.com/go-redis/redis"
 	log "github.com/sirupsen/logrus"
@@ -32,6 +33,24 @@ func (c *Cli) Run() {
 	if err != nil {
 		log.Fatalln(err)
 	}
+	s := scrapper.NewScrapper(fansubs)
+
+	if c.Args[1] == "simulate" {
+		log.Infoln("starting simulation mode")
+		fs, err := s.Scrap()
+		if err != nil {
+			log.Fatalln("simulator failed: ", err)
+		}
+		for _, v := range fs {
+			fmt.Println("getting result from :", v.Name)
+			for k, a := range v.Anime {
+				fmt.Println(k)
+				fmt.Println("title: ", a.Title)
+				fmt.Println("link: ", a.Link)
+			}
+		}
+		return
+	}
 
 	if len(fansubs) == 0 {
 		log.Fatalln("no fansubs detected, please fill in the fansubs.yaml")
@@ -57,7 +76,6 @@ func (c *Cli) Run() {
 	b := bot.NewTelegram(t, cfg, rds)
 	go b.Run()
 
-	s := scrapper.NewScrapper(fansubs)
 	scheduled := job.NewJob(s, b, cfg)
 	scheduled.Execute()
 }
