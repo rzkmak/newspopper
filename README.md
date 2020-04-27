@@ -19,6 +19,12 @@ To run this program, you will need
 ## How to Run
 
 - Copy environment file from `env.example` to be `.env` or use `ENVIRONMENT VARIABLE` directly
-- Copy environment file from `fansubs.yaml.example` to be `fansubs.yml`, add your favourite fansub there
+- Copy environment file from `fansubs.yaml.example` to be `fansubs.yaml`, add your favourite fansub there
 - Verify and download dependencies `make dep`
 - Run the app `make run`
+
+## How to Simulate
+
+- Setup dev environment properly
+- Update fansubs.yaml to be desired value
+- Run `make simulate`
