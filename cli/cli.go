@@ -33,6 +33,11 @@ func (c *Cli) Run() {
 	if err != nil {
 		log.Fatalln(err)
 	}
+
+	if len(fansubs) == 0 {
+		log.Fatalln("no fansubs detected, please fill in the fansubs.yaml")
+	}
+
 	s := scrapper.NewScrapper(fansubs)
 
 	if len(c.Args) > 1 && c.Args[1] == "simulate" {
@@ -50,10 +55,6 @@ func (c *Cli) Run() {
 			}
 		}
 		return
-	}
-
-	if len(fansubs) == 0 {
-		log.Fatalln("no fansubs detected, please fill in the fansubs.yaml")
 	}
 
 	cfg := config.NewConfig()
