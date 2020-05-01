@@ -20,6 +20,12 @@ func NewScrapper(fs []loader.Fansubs) *Scrapper {
 }
 
 func (s *Scrapper) Scrap() []model.Fansub {
+    defer func() {
+        if err := recover(); err != nil {
+            log.Errorln("recovering from panic: ", err)
+        }
+    }()
+
 	fansubs := make([]model.Fansub, 0)
 	for _, fs := range s.Fs {
 		anime, err := s.update(fs)
