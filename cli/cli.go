@@ -35,7 +35,7 @@ func (c *Cli) Run() {
 	}
 	s := scrapper.NewScrapper(fansubs)
 
-	if c.Args[1] == "simulate" {
+	if len(c.Args) > 1 && c.Args[1] == "simulate" {
 		log.Infoln("starting simulation mode")
 		fs := s.Scrap()
 		if len(fs) == 0 {
