@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
+	"time"
 )
 
 type Scrapper struct {
@@ -18,12 +19,14 @@ func NewScrapper(fs []loader.Fansubs) *Scrapper {
 	return &Scrapper{Fs: fs}
 }
 
-func (s *Scrapper) Scrap() ([]model.Fansub, error) {
+func (s *Scrapper) Scrap() []model.Fansub {
 	fansubs := make([]model.Fansub, 0)
 	for _, fs := range s.Fs {
 		anime, err := s.update(fs)
 		if err != nil {
-			return nil, err
+			log.Errorln("error while scrapping anime: ", err)
+			log.Errorln("failed job at: ", time.Now())
+			continue
 		}
 		fansub := new(model.Fansub)
 		fansub.Name = fs.Name
@@ -31,7 +34,7 @@ func (s *Scrapper) Scrap() ([]model.Fansub, error) {
 		fansubs = append(fansubs, *fansub)
 	}
 
-	return fansubs, nil
+	return fansubs
 }
 
 func (s *Scrapper) update(fs loader.Fansubs) ([]model.Anime, error) {

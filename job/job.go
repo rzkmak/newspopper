@@ -28,9 +28,8 @@ func (j *Job) Execute() {
 	for {
 		select {
 		case <-ticker.C:
-			updates, err := j.S.Scrap()
-			if err != nil {
-				log.Errorln("failed job at ", time.Now())
+			updates := j.S.Scrap()
+			if len(updates) == 0 {
 				continue
 			}
 			j.emit(updates)

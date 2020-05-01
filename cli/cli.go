@@ -37,9 +37,9 @@ func (c *Cli) Run() {
 
 	if c.Args[1] == "simulate" {
 		log.Infoln("starting simulation mode")
-		fs, err := s.Scrap()
-		if err != nil {
-			log.Fatalln("simulator failed: ", err)
+		fs := s.Scrap()
+		if len(fs) == 0 {
+			log.Fatalln("simulator failed: no value returned")
 		}
 		for _, v := range fs {
 			fmt.Println("getting result from :", v.Name)
