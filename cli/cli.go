@@ -1,22 +1,19 @@
 package cli
 
 import (
-	"fmt"
-	"newspopper/bot"
-	"newspopper/config"
-	"newspopper/job"
-	"newspopper/loader"
-	"newspopper/scrapper"
-	"os"
-	"time"
-
-	tb "github.com/demget/telebot"
-	"github.com/go-redis/redis"
+	"context"
 	log "github.com/sirupsen/logrus"
+	"newspopper/backend"
+	"newspopper/credential"
+	"newspopper/listener"
+	"newspopper/loader"
+	"newspopper/output"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
 type Cli struct {
-	*config.Config
 	Args []string
 }
 
@@ -24,60 +21,45 @@ func NewCli(args []string) *Cli {
 	return &Cli{Args: args}
 }
 
-func (c *Cli) Run() {
-	log.SetLevel(log.DebugLevel)
-	log.StandardLogger()
-	log.SetOutput(os.Stdout)
-	log.SetReportCaller(true)
-
-	fansubs, err := loader.Load()
+func (c *Cli) Run() error {
+	config, err := loader.Load()
 	if err != nil {
-		log.Fatalln(err)
+		return err
 	}
 
-	if len(fansubs) == 0 {
-		log.Fatalln("no fansubs detected, please fill in the sites.yaml")
+	store, err := backend.NewBackend(config.Backend)
+	if err != nil {
+		return err
 	}
 
-	s := scrapper.NewScrapper(fansubs)
-
-	if len(c.Args) > 1 && c.Args[1] == "simulate" {
-		log.Infoln("starting simulation mode")
-		fs := s.Scrap()
-		if len(fs) == 0 {
-			log.Fatalln("simulator failed: no value returned")
-		}
-		for _, v := range fs {
-			fmt.Println("getting result from :", v.Name)
-			for k, a := range v.Articles {
-				fmt.Println(k)
-				fmt.Println("title: ", a.Title)
-				fmt.Println("link: ", a.Link)
-			}
-		}
-		return
+	creds, err := credential.NewCredentialStorage(config.Credential)
+	if err != nil {
+		return err
 	}
 
-	cfg := config.NewConfig()
-
-	rds := redis.NewClient(&redis.Options{
-		Addr: cfg.RedisUri,
-		DB:   0,
-	})
-	defer rds.Close()
-	if rds.Ping().Err() != nil {
-		log.Fatalln(err)
+	outputs, err := output.NewOutputs(creds, config.Output)
+	if err != nil {
+		return err
 	}
 
-	p := &tb.LongPoller{Timeout: 15 * time.Second}
+	ctx := context.TODO()
 
-	t, err := tb.NewBot(tb.Settings{
-		Token:  cfg.TelegramToken,
-		Poller: p,
-	})
-	b := bot.NewTelegram(t, cfg, rds)
-	go b.Run()
+	listeners, err := listener.NewListeners(config.Listener, store, outputs)
+	if err != nil {
+		return err
+	}
 
-	scheduled := job.NewJob(s, b, cfg)
-	scheduled.Execute()
+	listeners.Initiate(ctx)
+	waitForShutdown(ctx)
+	return nil
+}
+
+func waitForShutdown(ctx context.Context) {
+	sig := make(chan os.Signal, 1)
+	signal.Notify(sig,
+		syscall.SIGINT,
+		syscall.SIGTERM)
+	_ = <-sig
+	ctx.Done()
+	log.Warn("Api server shutting complete")
 }

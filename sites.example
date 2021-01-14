@@ -1,15 +1,25 @@
-- name: "Fansub Name"
-  url: "fansub url"
-  selector:
-    main: "main css selector"
-    title: "title css selector"
-    link: "link css selector"
-  optional_http_code: 500 // additional acceptable http code
+backend:
+  redis:
+    uri: "localhost:6379"
 
-- name: "Another Fansub Name"
-  url: "another fansub url"
+credential:
+- type: "telegram"
+  token: "your_token"
+  alias: "telegram_credential_001"
+
+output:
+- type: "telegram-channel"
+  credential: "telegram_credential_001"
+  channel: "@your_channel_id"
+  alias: "your_channel.out"
+
+listener:
+- type: "scrapper"
+  url: "https://your-website.com"
+  interval: 1m
   selector:
-    main: "main css selector"
-    title: "title css selector"
-    link: "link css selector"
-  optional_http_code: 500 // additional acceptable http code
+    main: ".main"
+    title: ".title"
+    link: ".link"
+  optional_http_code: 500
+  target: "your_channel.out"

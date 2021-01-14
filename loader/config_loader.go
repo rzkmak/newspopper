@@ -5,26 +5,34 @@ import (
 	"io/ioutil"
 )
 
-type SourceSite struct {
-	Name     string `yaml:"name"`
-	Url      string `yaml:"url"`
-	Selector struct {
-		Main  string `yaml:"main"`
-		Title string `yaml:"title"`
-		Link  string `yaml:"link"`
-	}
-	OptionalHttpCode int `yaml:"optional_http_code"`
+type RedisConf struct {
+	Uri string `yaml:"uri"`
 }
 
-func Load() ([]SourceSite, error) {
+type BackendConf struct {
+	RedisConf `yaml:"redis"`
+}
+
+type Credential []map[string]string
+type Output []map[string]string
+type Listener []map[string]interface{}
+
+type Config struct {
+	Backend    BackendConf `yaml:"backend"`
+	Credential Credential  `yaml:"credential"`
+	Output     Output      `yaml:"output"`
+	Listener   Listener    `yaml:"listener"`
+}
+
+func Load() (Config, error) {
 	f, err := ioutil.ReadFile("./sites.yaml")
 	if err != nil {
-		return nil, err
+		return Config{}, err
 	}
 
-	var sourceSites []SourceSite
+	var sourceSites Config
 	if err := yaml.Unmarshal(f, &sourceSites); err != nil {
-		return nil, err
+		return Config{}, err
 	}
 
 	return sourceSites, nil
