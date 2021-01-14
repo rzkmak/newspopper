@@ -1,8 +1,33 @@
 # Newspopper
 
-Subscribe to any feed or web, deliver to your telegram bot/channel
+Subscribe to any feed or web, deliver anywhere!
 
 ## Overview
+
+![image](plan.png)
+
+### V2 Roadmap
+
+#### Subscriber
+- [x] rss
+- [x] web/scrap
+- [ ] webhook
+
+### Persistence
+- [x] redis
+- [ ] firebase
+- [ ] dynamo
+
+### Broadcaster
+- [x] telegram channel
+- [x] stdout (for debugging)
+- [ ] discord
+- [ ] slack
+- [ ] webhook
+
+### Other
+- [ ] proxy
+
 ## Prerequisite
 
 To run this program, you will need
@@ -17,7 +42,7 @@ To run this program, you will need
 
 ## How to Run
 
-- Copy environment file from `sites.yaml.example` to be `sites.yaml`, add your favourite fansub there
+- Copy environment file from `sites.yaml.example` to be `sites.yaml`, add your favourite site there
 - Verify and download dependencies `make dep`
 - Run the app `make run`
 
