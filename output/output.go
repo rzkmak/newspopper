@@ -6,6 +6,7 @@ import (
 	"io"
 	"newspopper/credential"
 	"newspopper/loader"
+	"os"
 )
 
 type Output interface {
@@ -51,6 +52,7 @@ func NewOutputs(creds credential.Credential, outs loader.Output) (Output, error)
 			return nil, errors.New(fmt.Sprintf("output doesnt supported type: %v", outs["type"]))
 		}
 	}
+	result["stdout"] = os.Stdout
 	return Impl{Outputs: result}, nil
 }
 
