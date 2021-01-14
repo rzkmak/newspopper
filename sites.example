@@ -23,3 +23,7 @@ listener:
     link: ".link"
   optional_http_code: 500
   target: "your_channel.out"
+- type: "rss"
+  url: "http://your-website.com/feed"
+  interval: 1m
+  target: "your_channel.out"

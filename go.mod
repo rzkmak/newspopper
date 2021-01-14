@@ -14,6 +14,7 @@ require (
 	github.com/gocolly/colly v1.2.0 // indirect
 	github.com/kennygrant/sanitize v1.2.4 // indirect
 	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
+	github.com/mmcdole/gofeed v1.1.0
 	github.com/saintfish/chardet v0.0.0-20120816061221-3af4cd4741ca // indirect
 	github.com/sirupsen/logrus v1.5.0
 	github.com/subosito/gotenv v1.2.0

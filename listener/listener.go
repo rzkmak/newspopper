@@ -102,7 +102,23 @@ func NewListeners(listeners loader.Listener, backend backend.Backend, output out
 				Output:   out,
 				Interval: intervalDur,
 			})
+		case "rss":
+			out, err := output.Get(target)
+			if err != nil {
+				return nil, err
+			}
 
+			intervalDur, err := time.ParseDuration(interval)
+			if err != nil {
+				return nil, err
+			}
+
+			result = append(result, &Rss{
+				Url:      url,
+				Backend:  backend,
+				Output:   out,
+				Interval: intervalDur,
+			})
 		default:
 			return nil, errors.New(fmt.Sprintf("listener type %v unavailable with spec %v", t, listener))
 		}
