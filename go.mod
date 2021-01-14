@@ -1,4 +1,4 @@
-module anipokev2
+module newspopper
 
 go 1.13
 

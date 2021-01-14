@@ -12,5 +12,5 @@ conveyor
 .env
 main_res.go
 proto
-anipokev2
-fansubs.yaml
+newspopper
+sites.yaml

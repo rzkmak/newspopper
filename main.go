@@ -1,7 +1,7 @@
 package main
 
 import (
-	"anipokev2/cli"
+	"newspopper/cli"
 	"os"
 )
 

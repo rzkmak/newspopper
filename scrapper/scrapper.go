@@ -1,32 +1,33 @@
 package scrapper
 
 import (
-	"anipokev2/loader"
-	"anipokev2/model"
-	"github.com/PuerkitoBio/goquery"
-	log "github.com/sirupsen/logrus"
 	"net/http"
+	"newspopper/loader"
+	"newspopper/model"
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/PuerkitoBio/goquery"
+	log "github.com/sirupsen/logrus"
 )
 
 type Scrapper struct {
-	Fs []loader.Fansubs
+	Fs []loader.SourceSite
 }
 
-func NewScrapper(fs []loader.Fansubs) *Scrapper {
+func NewScrapper(fs []loader.SourceSite) *Scrapper {
 	return &Scrapper{Fs: fs}
 }
 
-func (s *Scrapper) Scrap() []model.Fansub {
+func (s *Scrapper) Scrap() []model.SiteUpdate {
 	defer func() {
 		if err := recover(); err != nil {
 			log.Errorln("recovering from panic: ", err)
 		}
 	}()
 
-	fansubs := make([]model.Fansub, 0)
+	fansubs := make([]model.SiteUpdate, 0)
 	for _, fs := range s.Fs {
 		anime, err := s.update(fs)
 		if err != nil {
@@ -34,16 +35,16 @@ func (s *Scrapper) Scrap() []model.Fansub {
 			log.Errorln("failed job at: ", time.Now())
 			continue
 		}
-		fansub := new(model.Fansub)
+		fansub := new(model.SiteUpdate)
 		fansub.Name = fs.Name
-		fansub.Anime = anime
+		fansub.Articles = anime
 		fansubs = append(fansubs, *fansub)
 	}
 
 	return fansubs
 }
 
-func (s *Scrapper) update(fs loader.Fansubs) ([]model.Anime, error) {
+func (s *Scrapper) update(fs loader.SourceSite) ([]model.Article, error) {
 	res, err := http.Get(fs.Url)
 	defer res.Body.Close()
 
@@ -59,7 +60,7 @@ func (s *Scrapper) update(fs loader.Fansubs) ([]model.Anime, error) {
 		return nil, err
 	}
 
-	updates := make([]model.Anime, 0)
+	updates := make([]model.Article, 0)
 
 	doc, err := goquery.NewDocumentFromReader(res.Body)
 
@@ -69,7 +70,7 @@ func (s *Scrapper) update(fs loader.Fansubs) ([]model.Anime, error) {
 	}
 
 	doc.Find(fs.Selector.Main).Children().Each(func(i int, selection *goquery.Selection) {
-		update := new(model.Anime)
+		update := new(model.Article)
 		update.Title = selection.Find(fs.Selector.Title).Text()
 		plain, err := selection.Find(fs.Selector.Link).Html()
 		if err != nil {

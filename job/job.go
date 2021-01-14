@@ -1,16 +1,17 @@
 package job
 
 import (
-	"anipokev2/bot"
-	"anipokev2/config"
-	"anipokev2/model"
-	"anipokev2/scrapper"
 	"fmt"
-	"github.com/go-redis/redis"
-	log "github.com/sirupsen/logrus"
+	"newspopper/bot"
+	"newspopper/config"
+	"newspopper/model"
+	"newspopper/scrapper"
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/go-redis/redis"
+	log "github.com/sirupsen/logrus"
 )
 
 type Job struct {
@@ -37,7 +38,7 @@ func (j *Job) Execute() {
 	}
 }
 
-func (j *Job) emit(fansubs []model.Fansub) {
+func (j *Job) emit(fansubs []model.SiteUpdate) {
 	rds := redis.NewClient(&redis.Options{
 		Addr: j.Config.RedisUri,
 		DB:   0,
@@ -46,7 +47,7 @@ func (j *Job) emit(fansubs []model.Fansub) {
 
 	for _, fs := range fansubs {
 		log.Infoln("updating anime from fansub :", fs.Name)
-		for _, a := range fs.Anime {
+		for _, a := range fs.Articles {
 			title := fmt.Sprintf("%v:%v", fs.Name, ToSnakeCase(a.Title))
 			_, err := rds.Get(title).Result()
 			if err != nil {

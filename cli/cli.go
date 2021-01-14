@@ -1,17 +1,18 @@
 package cli
 
 import (
-	"anipokev2/bot"
-	"anipokev2/config"
-	"anipokev2/job"
-	"anipokev2/loader"
-	"anipokev2/scrapper"
 	"fmt"
+	"newspopper/bot"
+	"newspopper/config"
+	"newspopper/job"
+	"newspopper/loader"
+	"newspopper/scrapper"
+	"os"
+	"time"
+
 	tb "github.com/demget/telebot"
 	"github.com/go-redis/redis"
 	log "github.com/sirupsen/logrus"
-	"os"
-	"time"
 )
 
 type Cli struct {
@@ -35,7 +36,7 @@ func (c *Cli) Run() {
 	}
 
 	if len(fansubs) == 0 {
-		log.Fatalln("no fansubs detected, please fill in the fansubs.yaml")
+		log.Fatalln("no fansubs detected, please fill in the sites.yaml")
 	}
 
 	s := scrapper.NewScrapper(fansubs)
@@ -48,7 +49,7 @@ func (c *Cli) Run() {
 		}
 		for _, v := range fs {
 			fmt.Println("getting result from :", v.Name)
-			for k, a := range v.Anime {
+			for k, a := range v.Articles {
 				fmt.Println(k)
 				fmt.Println("title: ", a.Title)
 				fmt.Println("link: ", a.Link)

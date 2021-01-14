@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 )
 
-type Fansubs struct {
+type SourceSite struct {
 	Name     string `yaml:"name"`
 	Url      string `yaml:"url"`
 	Selector struct {
@@ -16,16 +16,16 @@ type Fansubs struct {
 	OptionalHttpCode int `yaml:"optional_http_code"`
 }
 
-func Load() ([]Fansubs, error) {
-	f, err := ioutil.ReadFile("./fansubs.yaml")
+func Load() ([]SourceSite, error) {
+	f, err := ioutil.ReadFile("./sites.yaml")
 	if err != nil {
 		return nil, err
 	}
 
-	var fansubs []Fansubs
-	if err := yaml.Unmarshal(f, &fansubs); err != nil {
+	var sourceSites []SourceSite
+	if err := yaml.Unmarshal(f, &sourceSites); err != nil {
 		return nil, err
 	}
 
-	return fansubs, nil
+	return sourceSites, nil
 }

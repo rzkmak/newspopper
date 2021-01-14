@@ -1,12 +1,13 @@
 package bot
 
 import (
-	"anipokev2/config"
 	"fmt"
+	"newspopper/config"
+	"strconv"
+
 	tb "github.com/demget/telebot"
 	"github.com/go-redis/redis"
 	log "github.com/sirupsen/logrus"
-	"strconv"
 )
 
 const (
