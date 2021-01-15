@@ -23,7 +23,7 @@ Subscribe to any feed or web, deliver anywhere!
 - [x] stdout (for debugging)
 - [ ] discord
 - [ ] slack
-- [ ] webhook
+- [x] webhook
 
 ### Other
 - [ ] proxy
