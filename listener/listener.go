@@ -8,6 +8,7 @@ import (
 	"newspopper/backend"
 	"newspopper/loader"
 	"newspopper/output"
+	"newspopper/template"
 	"time"
 )
 
@@ -39,7 +40,6 @@ func NewListeners(listeners loader.Listener, backend backend.Backend, output out
 		if _, found := listener["type"]; !found {
 			return nil, errors.New(fmt.Sprintf("listener doesn't have type at index %v", idx))
 		}
-
 		if _, found := listener["target"]; !found {
 			return nil, errors.New(fmt.Sprintf("listener doesn't have target with spec %v", listener))
 		}
@@ -49,10 +49,32 @@ func NewListeners(listeners loader.Listener, backend backend.Backend, output out
 		if _, found := listener["interval"]; !found {
 			return nil, errors.New(fmt.Sprintf("listener doesn't have interval with spec %v", listener))
 		}
+		defaultFormat := "text"
+		if format, found := listener["format"]; found {
+			defaultFormat = format.(string)
+		}
+
+		var formatter template.Parser
+		switch defaultFormat {
+		case "json":
+			formatter = template.JsonParser
+		default:
+			formatter = template.TextParser
+		}
 
 		url := listener["url"].(string)
 		target := listener["target"].(string)
 		interval := listener["interval"].(string)
+
+		out, err := output.Get(target)
+		if err != nil {
+			return nil, err
+		}
+		intervalDur, err := time.ParseDuration(interval)
+		if err != nil {
+			return nil, err
+		}
+
 		t := listener["type"]
 		switch t {
 		case "scrapper":
@@ -68,7 +90,6 @@ func NewListeners(listeners loader.Listener, backend backend.Backend, output out
 			for key, value := range listener["selector"].(map[interface{}]interface{}) {
 				strKey := fmt.Sprintf("%v", key)
 				strValue := fmt.Sprintf("%v", value)
-
 				selector[strKey] = strValue
 			}
 			if _, found := selector["main"]; !found {
@@ -80,17 +101,6 @@ func NewListeners(listeners loader.Listener, backend backend.Backend, output out
 			if _, found := selector["link"]; !found {
 				return nil, errors.New(fmt.Sprintf("listener doesn't have selector link with spec %v", listener))
 			}
-
-			out, err := output.Get(target)
-			if err != nil {
-				return nil, err
-			}
-
-			intervalDur, err := time.ParseDuration(interval)
-			if err != nil {
-				return nil, err
-			}
-
 			result = append(result, &Scrapper{
 				Url:                url,
 				OptionalHttpStatus: optionalHttpCode,
@@ -98,25 +108,17 @@ func NewListeners(listeners loader.Listener, backend backend.Backend, output out
 					Main:  selector["main"],
 					Title: selector["title"],
 				},
+				Parser:   formatter,
 				Backend:  backend,
 				Output:   out,
 				Interval: intervalDur,
 			})
 		case "rss":
-			out, err := output.Get(target)
-			if err != nil {
-				return nil, err
-			}
-
-			intervalDur, err := time.ParseDuration(interval)
-			if err != nil {
-				return nil, err
-			}
-
 			result = append(result, &Rss{
 				Url:      url,
 				Backend:  backend,
 				Output:   out,
+				Parser:   formatter,
 				Interval: intervalDur,
 			})
 		default:

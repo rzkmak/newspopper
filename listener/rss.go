@@ -9,18 +9,20 @@ import (
 	"io"
 	"newspopper/backend"
 	"newspopper/model"
+	"newspopper/template"
 	"newspopper/util"
 	"time"
 )
 
 type Rss struct {
 	Url      string
+	Parser   template.Parser
 	Backend  backend.Backend
 	Output   io.Writer
 	Interval time.Duration
 }
 
-func (s *Rss) String() string {
+func (s Rss) String() string {
 	return fmt.Sprintf("rss_job:%v", s.Url)
 }
 
@@ -28,17 +30,17 @@ func (s *Rss) Spawn(ctx context.Context) error {
 	if err := s.validate(); err != nil {
 		return err
 	}
-	log.Infoln("starting scrapper", s)
+	log.Infoln("starting rss", s)
 
 	tick := time.NewTicker(s.Interval)
 	go func() {
 		for {
 			select {
 			case t := <-tick.C:
-				log.Infoln("running scrapper %s", s, t)
+				log.Infoln("running rss %s", s, t)
 				s.Run()
 			case <-ctx.Done():
-				log.Infoln("shutdown scrapper %s", s)
+				log.Infoln("shutdown rss %s", s)
 				return
 			}
 		}
@@ -64,21 +66,23 @@ func (s Rss) validate() error {
 func (s Rss) Run() {
 	latest, err := s.update()
 	if err != nil {
-		log.Infoln("scrapper fetch error: ", err)
+		log.Infoln("rss fetch error: ", err)
 	}
 
 	for _, l := range latest {
 		isUpdated, err := s.Backend.Get(fmt.Sprintf("%s:%s", s, util.ToSnakeCase(l.Title)))
 		if isUpdated == 0 || err != nil {
 			if err := s.Backend.Set(fmt.Sprintf("%s:%s", s, util.ToSnakeCase(l.Title))); err != nil {
-				log.Infoln("scrapper failed to set backend: ", err)
+				log.Infoln("rss failed to set backend: ", err)
 				continue
 			}
-			msg := "Update: " + s.Url + "\n" +
-				l.Title + "\n" +
-				"Open now: " + l.Link
-			if _, err := s.Output.Write([]byte(msg)); err != nil {
-				log.Infoln("scrapper failed to send output: ", err)
+			msg, err := s.Parser(l)
+			if err != nil {
+				log.Infoln("rss failed to parse update: ", err)
+				continue
+			}
+			if _, err := s.Output.Write(msg); err != nil {
+				log.Infoln("rss failed to send output: ", err)
 			}
 		}
 	}
@@ -100,6 +104,7 @@ func (s *Rss) update() ([]model.Article, error) {
 		updates = append(updates, model.Article{
 			Title: item.Title,
 			Link:  item.Link,
+			Url:   s.Url,
 		})
 	}
 	return updates, nil

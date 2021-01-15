@@ -12,6 +12,9 @@ output:
   credential: "telegram_credential_001"
   channel: "@your_channel_id"
   alias: "your_channel.out"
+- type: "webhook"
+  url: "https://your-webhook.com/webhook-endpoint"
+  alias: "your_webhook"
 
 listener:
 - type: "scrapper"
@@ -27,3 +30,4 @@ listener:
   url: "http://your-website.com/feed"
   interval: 1m
   target: "your_channel.out"
+  format: "json"

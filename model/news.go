@@ -6,6 +6,7 @@ type SiteUpdate struct {
 }
 
 type Article struct {
+	Url   string
 	Title string
 	Link  string
 }

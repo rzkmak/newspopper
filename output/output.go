@@ -27,14 +27,13 @@ func NewOutputs(creds credential.Credential, outs loader.Output) (Output, error)
 		if _, found := outs["type"]; !found {
 			return nil, errors.New(fmt.Sprintf("output doesn't have type at index %v", idx))
 		}
-
+		alias, found := outs["alias"]
+		if !found {
+			return nil, errors.New(fmt.Sprintf("output doesn't have alias at index %v", idx))
+		}
 		t := outs["type"]
 		switch t {
 		case "telegram-channel":
-			alias, found := outs["alias"]
-			if !found {
-				return nil, errors.New(fmt.Sprintf("output doesn't have alias at index %v", idx))
-			}
 			cred, found := outs["credential"]
 			if !found {
 				return nil, errors.New(fmt.Sprintf("output doesn't have credential for alias %v", alias))
@@ -48,6 +47,12 @@ func NewOutputs(creds credential.Credential, outs loader.Output) (Output, error)
 				return nil, errors.New(fmt.Sprintf("output doesn't have channel for alias %v", alias))
 			}
 			result[alias] = NewTelegramChannel(token, chatId)
+		case "webhook":
+			url, found := outs["url"]
+			if !found {
+				return nil, errors.New(fmt.Sprintf("output webhook doesn't have url with alias %v", alias))
+			}
+			result[alias] = NewWebhook(url)
 		default:
 			return nil, errors.New(fmt.Sprintf("output doesnt supported type: %v", outs["type"]))
 		}

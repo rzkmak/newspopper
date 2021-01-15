@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"newspopper/backend"
 	"newspopper/model"
+	"newspopper/template"
 	"newspopper/util"
 	"regexp"
 	"strings"
@@ -26,12 +27,13 @@ type Scrapper struct {
 	Url                string
 	OptionalHttpStatus int
 	Selector           ScrapperSelector
+	Parser             template.Parser
 	Backend            backend.Backend
 	Output             io.Writer
 	Interval           time.Duration
 }
 
-func (s *Scrapper) String() string {
+func (s Scrapper) String() string {
 	return fmt.Sprintf("scrapper_job:%v", s.Url)
 }
 
@@ -70,10 +72,12 @@ func (s Scrapper) Run() {
 				log.Infoln("scrapper failed to set backend: ", err)
 				continue
 			}
-			msg := "Update: " + s.Url + "\n" +
-				l.Title + "\n" +
-				"Open now: " + l.Link
-			if _, err := s.Output.Write([]byte(msg)); err != nil {
+			msg, err := s.Parser(l)
+			if err != nil {
+				log.Infoln("scrapper failed to parse update: ", err)
+				continue
+			}
+			if _, err := s.Output.Write(msg); err != nil {
 				log.Infoln("scrapper failed to send output: ", err)
 			}
 		}
@@ -124,6 +128,7 @@ func (s *Scrapper) update() ([]model.Article, error) {
 	doc.Find(s.Selector.Main).Children().Each(func(i int, selection *goquery.Selection) {
 		update := new(model.Article)
 		update.Title = selection.Find(s.Selector.Title).Text()
+		update.Url = s.Url
 		plain, err := selection.Find(s.Selector.Link).Html()
 		if err != nil {
 			log.Error("error while parsing html attribute", err)
