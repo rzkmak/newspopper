@@ -44,7 +44,7 @@ func (c *Cli) Run() error {
 
 	ctx := context.TODO()
 
-	listeners, err := listener.NewListeners(config.Listener, store, outputs)
+	listeners, err := listener.NewListeners(config.Listener, store, outputs, config.Port)
 	if err != nil {
 		return err
 	}

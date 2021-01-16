@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"math/rand"
+	"net/http"
 	"newspopper/backend"
 	"newspopper/loader"
 	"newspopper/output"
@@ -21,6 +23,7 @@ type Listeners interface {
 }
 
 type Impl struct {
+	Port      int
 	Listeners []Listener
 }
 
@@ -32,9 +35,17 @@ func (i Impl) Initiate(ctx context.Context) {
 			}
 		}(listener)
 	}
+	port := i.Port
+	if i.Port == 0 {
+		port = rand.Intn(39999-30000) + 30000
+	}
+	log.Println(fmt.Sprintf("receiving http endpoint at :%v", port))
+	if err := http.ListenAndServe(fmt.Sprintf(":%v", port), nil); err != nil {
+		log.Fatalln(err)
+	}
 }
 
-func NewListeners(listeners loader.Listener, backend backend.Backend, output output.Output) (Listeners, error) {
+func NewListeners(listeners loader.Listener, backend backend.Backend, output output.Output, defaultPort int) (Listeners, error) {
 	result := []Listener{}
 	for idx, listener := range listeners {
 		if _, found := listener["type"]; !found {
@@ -121,9 +132,16 @@ func NewListeners(listeners loader.Listener, backend backend.Backend, output out
 				Parser:   formatter,
 				Interval: intervalDur,
 			})
+		case "webhook":
+			result = append(result, &Webhook{
+				WebhookUrl: url,
+				Backend:    backend,
+				Output:     out,
+				Parser:     formatter,
+			})
 		default:
 			return nil, errors.New(fmt.Sprintf("listener type %v unavailable with spec %v", t, listener))
 		}
 	}
-	return Impl{Listeners: result}, nil
+	return Impl{Listeners: result, Port: defaultPort}, nil
 }

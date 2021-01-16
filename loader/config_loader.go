@@ -18,6 +18,7 @@ type Output []map[string]string
 type Listener []map[string]interface{}
 
 type Config struct {
+	Port       int         `yaml:"port"`
 	Backend    BackendConf `yaml:"backend"`
 	Credential Credential  `yaml:"credential"`
 	Output     Output      `yaml:"output"`

@@ -1,3 +1,4 @@
+port: 8080 #if not set, it will randomly generated with range (30000-39999)
 backend:
   redis:
     uri: "localhost:6379"
@@ -29,5 +30,8 @@ listener:
 - type: "rss"
   url: "http://your-website.com/feed"
   interval: 1m
-  target: "your_channel.out"
+  target: ""
   format: "json"
+- type: "webhook"
+  url: "/update-event"
+  target: "your_channel.out"

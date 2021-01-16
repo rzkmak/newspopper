@@ -86,7 +86,6 @@ func (s Rss) Run() {
 			}
 		}
 	}
-
 }
 
 func (s *Rss) update() ([]model.Article, error) {

@@ -11,7 +11,7 @@ Subscribe to any feed or web, deliver anywhere!
 #### Subscriber
 - [x] rss
 - [x] web/scrap
-- [ ] webhook
+- [x] webhook
 
 ### Persistence
 - [x] redis
@@ -58,5 +58,4 @@ listener:
   url: "http://your-site.com/feed"
   interval: 1m
   target: "stdout"
-
 ```
