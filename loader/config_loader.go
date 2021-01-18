@@ -6,7 +6,8 @@ import (
 )
 
 type RedisConf struct {
-	Uri string `yaml:"uri"`
+	Uri             string `yaml:"uri"`
+	PersistDuration string `yaml:"persist_duration"`
 }
 
 type BackendConf struct {

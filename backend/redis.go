@@ -8,9 +8,8 @@ import (
 
 type Redis struct {
 	Client *redis.Client
+	TTL    time.Duration
 }
-
-var defaultTTl time.Duration = time.Hour * 72
 
 func (r Redis) Get(key string) (int, error) {
 	raw, err := r.Client.Get(key).Int()
@@ -26,7 +25,7 @@ func (r Redis) Set(key string) error {
 		return errors.New("redis: set key should not be nil")
 	}
 
-	_, err := r.Client.Set(key, 1, defaultTTl).Result()
+	_, err := r.Client.Set(key, 1, r.TTL).Result()
 	if err != nil {
 		return err
 	}

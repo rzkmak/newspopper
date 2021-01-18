@@ -2,6 +2,7 @@ port: 8080 #if not set, it will randomly generated with range (30000-39999)
 backend:
   redis:
     uri: "localhost:6379"
+    persist_duration: "336h" # 2 weeks, if not set will be default (1 week)
 
 credential:
 - type: "telegram"
