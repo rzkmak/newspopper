@@ -49,7 +49,9 @@ To run this program, you will need
 ## How to Run with Docker and docker-compose
 
 > Easy to **Build**, **Run**, **Stop** and **Logging**
+
 > Using this way you have persistent redis data in: `docker/volume/data-redis`
+
 > Just place your `sites.yaml` file with a valid configuration and get your bot up and running!
 
 - Copy environment file from `sites.yaml.example.docker` to be `sites.yaml`, add your favourite site there
