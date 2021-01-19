@@ -54,9 +54,6 @@ func NewListeners(listeners loader.Listener, backend backend.Backend, output out
 		if _, found := listener["target"]; !found {
 			return nil, errors.New(fmt.Sprintf("listener doesn't have target with spec %v", listener))
 		}
-		if _, found := listener["url"]; !found {
-			return nil, errors.New(fmt.Sprintf("listener doesn't have url with spec %v", listener))
-		}
 		if _, found := listener["interval"]; !found {
 			return nil, errors.New(fmt.Sprintf("listener doesn't have interval with spec %v", listener))
 		}
@@ -73,7 +70,6 @@ func NewListeners(listeners loader.Listener, backend backend.Backend, output out
 			formatter = template.TextParser
 		}
 
-		url := listener["url"].(string)
 		target := listener["target"].(string)
 		interval := listener["interval"].(string)
 
@@ -89,6 +85,10 @@ func NewListeners(listeners loader.Listener, backend backend.Backend, output out
 		t := listener["type"]
 		switch t {
 		case "scrapper":
+			url := listener["url"].(string)
+			if _, found := listener["url"]; !found {
+				return nil, errors.New(fmt.Sprintf("listener doesn't have url with spec %v", listener))
+			}
 			optionalHttpCode := 200
 			if httpCode, found := listener["optional_http_code"]; found {
 				optionalHttpCode = httpCode.(int)
@@ -125,6 +125,10 @@ func NewListeners(listeners loader.Listener, backend backend.Backend, output out
 				Interval: intervalDur,
 			})
 		case "rss":
+			url := listener["url"].(string)
+			if _, found := listener["url"]; !found {
+				return nil, errors.New(fmt.Sprintf("listener doesn't have url with spec %v", listener))
+			}
 			result = append(result, &Rss{
 				Url:      url,
 				Backend:  backend,
@@ -133,11 +137,24 @@ func NewListeners(listeners loader.Listener, backend backend.Backend, output out
 				Interval: intervalDur,
 			})
 		case "webhook":
+			url := listener["url"].(string)
+			if _, found := listener["url"]; !found {
+				return nil, errors.New(fmt.Sprintf("listener doesn't have url with spec %v", listener))
+			}
 			result = append(result, &Webhook{
 				WebhookUrl: url,
 				Backend:    backend,
 				Output:     out,
 				Parser:     formatter,
+			})
+		case "youtube":
+			channelId := listener["channel_id"].(string)
+			result = append(result, &Rss{
+				Url:      fmt.Sprintf("https://www.youtube.com/feeds/videos.xml?channel_id=%v", channelId),
+				Parser:   formatter,
+				Backend:  backend,
+				Output:   out,
+				Interval: intervalDur,
 			})
 		default:
 			return nil, errors.New(fmt.Sprintf("listener type %v unavailable with spec %v", t, listener))

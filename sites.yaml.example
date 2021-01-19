@@ -36,3 +36,8 @@ listener:
 - type: "webhook"
   url: "/update-event"
   target: "your_channel.out"
+- type: "youtube"
+  channel_id: "UCxxnxya_32jcKj4yN1_kD7A"
+  format: "json"
+  interval: 1m
+  target: "stdout"
