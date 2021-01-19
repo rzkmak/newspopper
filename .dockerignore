@@ -1,0 +1,6 @@
+docker
+.editorconfig
+.gitignore
+.git
+Makefile
+sites.*

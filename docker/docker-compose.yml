@@ -1,0 +1,24 @@
+version: '3'
+
+services:
+  newspopper-redis:
+    container_name: newspopper-redis
+    restart: always
+    image: redis:latest
+    expose:
+      - "6379"    
+    volumes:
+      - ./volume/data-redis:/data
+
+  newspopper-bot:
+    image: rzkmak/newspopper:0.0.3
+    container_name: newspopper-bot
+    restart: always
+    expose:
+      - "8080"    
+    links:
+      - newspopper-redis
+    depends_on:
+      - newspopper-redis
+    volumes:
+      - ../sites.yaml:/app/sites.yaml
