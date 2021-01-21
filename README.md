@@ -12,6 +12,7 @@ Subscribe to any feed or web, deliver anywhere!
 - [x] rss
 - [x] web/scrap
 - [x] webhook
+- [x] youtube channel
 
 ### Persistence
 - [x] redis
